@@ -1,29 +1,69 @@
 #include <iostream>
-using namespace std;
+#include <string>
+ 
+struct Student
+{
+    std::string name, telephone;
+};
+ 
+class Students
+{
+public:
+    explicit Students(const size_t size) :
+        m_data(new Student[size]),
+        m_size(size),
+        m_curRecords(0)
+    {}
+    Students(const Students &st) :
+        Students(st.m_size)
+    {
+        m_curRecords = st.m_curRecords;
+        for (size_t i = 0; i < m_curRecords; i++)
+            m_data[i] = st.m_data[i];
+    }
+    Students& operator= (const Students &st)
+    {
+        if (this != &st)
+        {
+            m_size = st.m_size;
+            m_curRecords = st.m_curRecords;
+            delete[] m_data;
+            m_data = new Student[m_size];
+            for (size_t i = 0; i < m_curRecords; i++)
+                m_data[i] = st.m_data[i];
+        }
+        return *this;
+    }
+    ~Students()
+    {
+        delete[] m_data;
+    }
+    bool AddStudent(const Student &st)
+    {
+        if (m_curRecords == m_size)
+            return false;
+        m_data[m_curRecords++] = st;
+        return true;
+    }
+    void PrintAll() const
+    {
+        for (size_t i = 0; i < m_curRecords; i++)
+            std::cout << m_data[i].name << " " << m_data[i].telephone << std::endl;
+    }
+ 
+private:
+    Student *m_data;
+    size_t m_size;
+    size_t m_curRecords;
+};
+ 
 int main()
 {
-    const int size = 10;
-    int arr1[size];
-    int arr2[size];
-    int arrs[size];
-    cout << "Enter the random numbers to fill first array:\n";
-    for (int i = 0; i < size; i++)
-    {
-        cout << "arr1[" << i << "] = ";
-        cin >> arr1[i];
-    }
-    cout << "\nEnter the random numbers to fill second array:\n";
-    for (int i = 0; i < size; i++)
-    {
-        cout << "arr2[" << i << "] = ";
-        cin >> arr2[i];
-    }
-    cout << "\nThe third array with the sum of two arrays:\n";
-    for (int i = 0; i < size; i++)
-    {
-        arrs[i] = arr1[i] + arr2[i];
-        cout << "arr3[" << i << "] = ";
-        cout << arrs[i] << "\n";
-    }
-    cout << "\n\nPotapenko A.V.\n";
+    Students st(42);
+    st.AddStudent({ "ABCD", "100" });
+    Students st2 = st;
+    st2.AddStudent({ "IDDQD", "777" });
+    Students st3(st2);
+    st3.AddStudent({ "Eniki", "123" });
+    st3.PrintAll();
 }
